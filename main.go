@@ -27,7 +27,7 @@ func main() {
 	//*CHI router
 	router := chi.NewRouter()
 
-	//*CORS policy setup
+	//*CORS middleware policy
 	router.Use(cors.Handler(cors.Options{
 
 		AllowedOrigins:   []string{"https://*", "http://*"},
@@ -37,6 +37,16 @@ func main() {
 		AllowCredentials: false,
 		MaxAge:           300, //? Maximum value not ignored by any of major browsers for preflight checkup
 	}))
+
+	// * HookUp Home handler
+	v1Router := chi.NewRouter()
+	v1Router.HandleFunc("/healthz", handlerHealthz)
+
+	v1Router.Get("/home", handlerHome)
+	v1Router.Get("/err", handlerERR)
+
+	// * Mount for API versioning
+	router.Mount("/v1", v1Router)
 
 	//*Setup Server
 	server := &http.Server{

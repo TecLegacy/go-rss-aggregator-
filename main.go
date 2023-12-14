@@ -7,10 +7,12 @@ import (
 	"os"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
 )
 
 func main() {
+	//* load env
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Env Loading failed")
@@ -22,10 +24,21 @@ func main() {
 	}
 	fmt.Printf("Port running on : %v", portString)
 
-	//CHI router
+	//*CHI router
 	router := chi.NewRouter()
 
-	//Setup Server
+	//*CORS policy setup
+	router.Use(cors.Handler(cors.Options{
+
+		AllowedOrigins:   []string{"https://*", "http://*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"*"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: false,
+		MaxAge:           300, //? Maximum value not ignored by any of major browsers for preflight checkup
+	}))
+
+	//*Setup Server
 	server := &http.Server{
 		Handler: router,
 		Addr:    ":" + portString,
